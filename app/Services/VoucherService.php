@@ -94,10 +94,35 @@ class VoucherService
     {
         $information = explode('-', $id);
 
+        $this->validateStructure($information);
+        $this->validateSerie($information[0]);
+        $this->validateNumber($information[1]);
+
         return [
             "serie" => $information[0],
             "number" => $information[1]
         ];
+    }
+
+    private function validateStructure(array $information): void
+    {
+        if (count($information) != 2) {
+            throw new \Exception('Estructura del ID no es correcta.');
+        }
+    }
+
+    private function validateSerie(string $serie): void
+    {
+        if (!str_starts_with($serie, 'F')) {
+            throw new \Exception('Serie no es válida.');
+        }
+    }
+
+    private function validateNumber(string $number): void
+    {
+        if (!str_starts_with($number, '1')) {
+            throw new \Exception('Número correlativo no es correcto.');
+        }
     }
 
     private function humanizeVoucherType(string $code)
@@ -106,10 +131,15 @@ class VoucherService
             "01" => "FACTURA"
         ];
 
-        if (!array_key_exists($code, $descriptions)) {
-            throw new \Exception('codigo de tipo de comprobante no se encuentra registrado');
-        }
+        $this->validateCode($code, $descriptions);
 
         return $descriptions[$code];
+    }
+
+    private function validateCode(string $code, array $descriptions): void
+    {
+        if (!array_key_exists($code, $descriptions)) {
+            throw new \Exception('Código no se encuentra registrado.');
+        }
     }
 }
