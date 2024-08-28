@@ -120,7 +120,7 @@ class VoucherService
 
     private function validateNumber(string $number): void
     {
-        if (!str_starts_with($number, '1')) {
+        if (intval($number) < 1) {
             throw new \Exception('Número correlativo no es correcto.');
         }
     }
