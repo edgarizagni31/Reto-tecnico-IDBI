@@ -27,6 +27,11 @@ services:
             - ./vendor/data/:/var/lib/mysql/
         networks:
             - invoice-recorder-challenge
+    redis:
+        image: redis:latest
+        container_name: redis
+        networks:
+            - invoice-recorder-challenge
 
 networks:
     invoice-recorder-challenge:
