@@ -32,6 +32,16 @@ services:
         container_name: redis
         networks:
             - invoice-recorder-challenge
-
+    queue:
+        image: kooldev/php:8.1-nginx
+        volumes:
+            - .:/app
+        networks:
+            - invoice-recorder-challenge
+        command: ["php", "artisan", "queue:work"]
+        depends_on:
+            - db
+            - redis
+        restart: always
 networks:
     invoice-recorder-challenge:
