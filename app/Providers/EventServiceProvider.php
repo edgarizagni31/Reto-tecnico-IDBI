@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Events\Vouchers\VouchersCreated;
+use App\Events\Vouchers\VouchersNotCreated;
 use App\Listeners\SendVoucherAddedNotification;
+use App\Listeners\SendVoucherNotAddedNotification;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -22,6 +24,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         VouchersCreated::class => [
             SendVoucherAddedNotification::class,
+        ],
+        VouchersNotCreated::class => [
+            SendVoucherNotAddedNotification::class
         ]
     ];
 

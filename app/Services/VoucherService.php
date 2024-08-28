@@ -3,12 +3,15 @@
 namespace App\Services;
 
 use App\Events\Vouchers\VouchersCreated;
+use App\Events\Vouchers\VouchersNotCreated;
 use App\Models\User;
 use App\Models\Voucher;
 use App\Models\VoucherLine;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Log;
 use SimpleXMLElement;
+use Storage;
+use Str;
 
 class VoucherService
 {
@@ -25,11 +28,17 @@ class VoucherService
     public function storeVouchersFromXmlContents(array $xmlContents, User $user): array
     {
         $vouchers = [];
+        $wrongVouchers = [];
         foreach ($xmlContents as $xmlContent) {
-            $vouchers[] = $this->storeVoucherFromXmlContent($xmlContent, $user);
+            try {
+                $vouchers[] = $this->storeVoucherFromXmlContent($xmlContent, $user);
+            } catch (\Exception $exception) {
+                $wrongVouchers[] = $this->reportWrongVoucher($xmlContent, $exception->getMessage());
+            }
         }
 
         VouchersCreated::dispatch($vouchers, $user);
+        VouchersNotCreated::dispatch($wrongVouchers, $user);
 
         return $vouchers;
     }
@@ -120,7 +129,7 @@ class VoucherService
 
     private function validateNumber(string $number): void
     {
-        if (intval($number) < 1) {
+        if (intval($number) > 1) {
             throw new \Exception('Número correlativo no es correcto.');
         }
     }
@@ -141,5 +150,23 @@ class VoucherService
         if (!array_key_exists($code, $descriptions)) {
             throw new \Exception('Código no se encuentra registrado.');
         }
+    }
+
+    private function reportWrongVoucher(string $xmlContent, string $reason): array
+    {
+        $filename = substr(Str::uuid()->toString(), 0, 5) . '.xml';
+        $absolutePath = '';
+        $fileWasCreated = Storage::put($filename, $xmlContent);
+
+        if ($fileWasCreated) {
+            $absolutePath = Storage::path($filename);
+        }
+
+        return [
+            "file" => $absolutePath,
+            "filename" => $filename,
+            "file_was_created" => $fileWasCreated,
+            "reason" => $reason
+        ];
     }
 }
