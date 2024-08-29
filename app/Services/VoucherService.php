@@ -37,12 +37,13 @@ class VoucherService
         }
 
         if ($startDate) {
+            $startDate = Carbon::parse($startDate)->startOfDay();
             $queryBuilder->whereDate('created_at', '>=', $startDate);
         }
 
         if ($endDate) {
-            $queryBuilder->whereDate('created_at', '<=', $startDate);
-
+            $endDate = Carbon::parse($endDate)->endOfDay();
+            $queryBuilder->whereDate('created_at', '<=', $endDate);
         }
 
 
