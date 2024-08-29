@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Voucher;
 use App\Models\VoucherLine;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 use Log;
 use SimpleXMLElement;
 use Storage;
@@ -18,6 +19,33 @@ class VoucherService
     public function getVouchers(int $page, int $paginate): LengthAwarePaginator
     {
         return Voucher::with(['lines', 'user'])->paginate(perPage: $paginate, page: $page);
+    }
+
+    public function getVoucher(array $values): Collection
+    {
+        $queryBuilder = Voucher::query();
+
+        extract($values);
+
+        if ($serie) {
+            $queryBuilder->where('serie', $serie);
+        }
+
+        if ($number) {
+            $queryBuilder->where('number', $number);
+        }
+
+        if ($startDate) {
+            $queryBuilder->whereDate('created_at', '>=', $startDate);
+        }
+
+        if ($endDate) {
+            $queryBuilder->whereDate('created_at', '<=', $startDate);
+
+        }
+
+
+        return $queryBuilder->get();
     }
 
     /**

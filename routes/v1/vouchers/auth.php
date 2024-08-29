@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Route;
 Route::prefix('vouchers')->group(
     function () {
         Route::get('/', GetVouchersHandler::class);
+        Route::get('/voucher', GetVoucherHandler::class);
         Route::post('/', StoreVouchersHandler::class);
+        Route::delete('/{voucherId}', DeleteVoucherHandler::class);
     }
 );
