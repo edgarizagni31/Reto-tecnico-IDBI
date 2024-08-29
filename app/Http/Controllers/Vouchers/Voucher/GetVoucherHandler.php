@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Vouchers\Voucher;
+use App\Http\Requests\Vouchers\GetVoucherRequest;
 use App\Http\Resources\Vouchers\VoucherResource;
 use App\Models\Voucher;
 use App\Services\VoucherService;
@@ -15,14 +16,14 @@ class GetVoucherHandler
     {
     }
 
-    public function __invoke(Request $request): Response
+    public function __invoke(GetVoucherRequest $request): Response
     {
         try {
             $vouchers = $this->voucherService->getVoucher([
-                'serie' => $request->query('serie'),
-                'number' => $request->query('number'),
-                'start_date' => $request->query('start_date'),
-                'end_date' => $request->query('end_date'),
+                'serie' => $request->input('serie'),
+                'number' => $request->input('number'),
+                'start_date' => $request->input('start_date'),
+                'end_date' => $request->input('end_date'),
             ]);
 
 

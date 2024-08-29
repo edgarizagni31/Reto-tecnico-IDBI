@@ -30,46 +30,23 @@ class VoucherService
         $startDate = $values['start_date'];
         $endDate = $values['end_date'];
 
-        if ($this->isValidParamValue($serie)) {
+        if ($serie) {
             $queryBuilder->where('serie', $serie);
         }
 
-        if ($this->isValidParamValue($number)) {
+        if ($number) {
             $queryBuilder->where('number', $number);
         }
 
-        if ($this->isValidParamValue($startDate) && $this->isValidFormatDate($startDate)) {
-            $startDate = Carbon::parse($startDate)->startOfDay();
-            $queryBuilder->whereDate('created_at', '>=', $startDate);
-        } elseif ($this->isValidParamValue($startDate) && !$this->isValidFormatDate($startDate)) {
-            throw new \Exception('Formato de la fecha de inicio no es valido');
+        if ($startDate) {
+            $queryBuilder->whereDate('created_at', '>=', Carbon::parse($startDate)->startOfDay());
         }
 
-        if ($this->isValidParamValue($endDate) && $this->isValidFormatDate($endDate)) {
-            $endDate = Carbon::parse($endDate)->endOfDay();
-            $queryBuilder->whereDate('created_at', '<=', $endDate);
-        } elseif ($this->isValidParamValue($endDate) && !$this->isValidFormatDate($endDate)) {
-            throw new \Exception('Formato de la fecha de fin no es valido');
+        if ($endDate) {
+            $queryBuilder->whereDate('created_at', '<=', Carbon::parse($endDate)->endOfDay());
         }
 
         return $queryBuilder->get();
-    }
-
-    private function isValidParamValue($value)
-    {
-        return $value && !empty($value);
-    }
-
-    private function isValidFormatDate($date)
-    {
-        try {
-            $format = 'Y-m-d';
-            $parsedDate = Carbon::createFromFormat($format, $date);
-
-            return $parsedDate->format($format) === $date;
-        } catch (\Exception $e) {
-            return false;
-        }
     }
 
     /**

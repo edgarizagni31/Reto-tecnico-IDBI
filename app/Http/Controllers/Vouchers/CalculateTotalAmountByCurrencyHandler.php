@@ -1,8 +1,8 @@
 <?php
 namespace App\Http\Controllers\Vouchers;
 
+use App\Http\Requests\Vouchers\CalculateTotalAmountByCurrencyRequest;
 use App\Services\VoucherService;
-use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 class CalculateTotalAmountByCurrencyHandler
 {
@@ -11,10 +11,11 @@ class CalculateTotalAmountByCurrencyHandler
     {
     }
 
-    public function __invoke(Request $request): Response
+    public function __invoke(CalculateTotalAmountByCurrencyRequest $request): Response
     {
         try {
-            $currency = $request->query('currency') ?? 'PEN';
+            $request->validated();
+            $currency = $request->input('currency');
             $total = VoucherService::calculateTotalAmountByCurrency($currency);
     
             return response(['message' => "el total acumulado por la divisa $currency", 'data' => intval($total)], 200);
