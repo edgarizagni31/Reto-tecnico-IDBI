@@ -25,29 +25,51 @@ class VoucherService
     public function getVoucher(array $values): Collection
     {
         $queryBuilder = Voucher::query();
+        $serie = $values['serie'];
+        $number = $values['number'];
+        $startDate = $values['start_date'];
+        $endDate = $values['end_date'];
 
-        extract($values);
-
-        if ($serie) {
+        if ($this->isValidParamValue($serie)) {
             $queryBuilder->where('serie', $serie);
         }
 
-        if ($number) {
+        if ($this->isValidParamValue($number)) {
             $queryBuilder->where('number', $number);
         }
 
-        if ($startDate) {
+        if ($this->isValidParamValue($startDate) && $this->isValidFormatDate($startDate)) {
             $startDate = Carbon::parse($startDate)->startOfDay();
             $queryBuilder->whereDate('created_at', '>=', $startDate);
+        } elseif ($this->isValidParamValue($startDate) && !$this->isValidFormatDate($startDate)) {
+            throw new \Exception('Formato de la fecha de inicio no es valido');
         }
 
-        if ($endDate) {
+        if ($this->isValidParamValue($endDate) && $this->isValidFormatDate($endDate)) {
             $endDate = Carbon::parse($endDate)->endOfDay();
             $queryBuilder->whereDate('created_at', '<=', $endDate);
+        } elseif ($this->isValidParamValue($endDate) && !$this->isValidFormatDate($endDate)) {
+            throw new \Exception('Formato de la fecha de fin no es valido');
         }
 
-
         return $queryBuilder->get();
+    }
+
+    private function isValidParamValue($value)
+    {
+        return $value && !empty($value);
+    }
+
+    private function isValidFormatDate($date)
+    {
+        try {
+            $format = 'Y-m-d';
+            $parsedDate = Carbon::createFromFormat($format, $date);
+
+            return $parsedDate->format($format) === $date;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -213,7 +235,8 @@ class VoucherService
         return $voucher;
     }
 
-    public static function calculateTotalAmountByCurrency(string $currency = "PEN") {
+    public static function calculateTotalAmountByCurrency(string $currency = "PEN")
+    {
         $result = Voucher::selectRaw('SUM(total_amount) AS total, currency')
             ->where('currency', $currency)
             ->groupBy('currency')
@@ -222,7 +245,7 @@ class VoucherService
         if (is_null($result)) {
             throw new \Exception("No existe vouchers con la moneda $currency");
         }
-        
+
         return $result->total;
     }
 }

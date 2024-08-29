@@ -17,17 +17,24 @@ class GetVoucherHandler
 
     public function __invoke(Request $request): Response
     {
-        $vouchers = $this->voucherService->getVoucher([
-            'serie' => $request->query('serie'),
-            'number' => $request->query('number'),
-            'startDate' => $request->query('start_date'),
-            'endDate' => $request->query('end_date'),
-        ]);
+        try {
+            $vouchers = $this->voucherService->getVoucher([
+                'serie' => $request->query('serie'),
+                'number' => $request->query('number'),
+                'start_date' => $request->query('start_date'),
+                'end_date' => $request->query('end_date'),
+            ]);
 
 
-        return response([
-            'data' => VoucherResource::collection($vouchers),
-            'message' => 'list vouchers'
-        ], 200);
+            return response([
+                'data' => VoucherResource::collection($vouchers),
+                'message' => 'list vouchers'
+            ], 200);
+        } catch (\Exception $exception) {
+            return response([
+                'message' => $exception->getMessage()
+            ], 400);
+        }
+
     }
 }
