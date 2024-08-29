@@ -212,4 +212,17 @@ class VoucherService
 
         return $voucher;
     }
+
+    public static function calculateTotalAmountByCurrency(string $currency = "PEN") {
+        $result = Voucher::selectRaw('SUM(total_amount) AS total, currency')
+            ->where('currency', $currency)
+            ->groupBy('currency')
+            ->first();
+
+        if (is_null($result)) {
+            throw new \Exception("No existe vouchers con la moneda $currency");
+        }
+        
+        return $result->total;
+    }
 }
