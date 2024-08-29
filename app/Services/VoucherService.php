@@ -7,6 +7,7 @@ use App\Events\Vouchers\VouchersNotCreated;
 use App\Models\User;
 use App\Models\Voucher;
 use App\Models\VoucherLine;
+use Carbon\Carbon;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Log;
@@ -196,5 +197,18 @@ class VoucherService
             "file_was_created" => $fileWasCreated,
             "reason" => $reason
         ];
+    }
+
+    public function deleteVoucher(string $voucherId)
+    {
+        $voucher = Voucher::find($voucherId);
+
+        if (!$voucher) {
+            throw new \Exception("voucher con $voucherId no existe");
+        }
+
+        $voucher->delete();
+
+        return $voucher;
     }
 }
